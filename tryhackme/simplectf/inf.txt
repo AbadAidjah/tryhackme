@@ -1,0 +1,89 @@
+cve is the id of a well known vulnerability
+
+exploit db is The Exploit Database is a CVE compliant archive of public exploit>
+
+searchsploit 'made simple'
+
+searches Exploit-DB (a database of publicly available exploits) for vulnerabili>
+
+loacate : this cmnd locate the repository of a file
+
+
+lets use gobuster to know the directories 
+
+gobuster dir -u http://10.10.20.232/ -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt 
+
+using gobuster we found this website 
+
+http://10.10.20.232/simple/
+
+lets use it again on the same url 
+
+gobuster dir -u http://10.10.20.232/simple/ -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt 
+
+its an effective technique
+
+
+/////////
+
+if found thos repositories 
+
+─$ gobuster dir -u http://10.10.20.232/simple/ -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt 
+===============================================================
+Gobuster v3.6
+by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
+===============================================================
+[+] Url:                     http://10.10.20.232/simple/
+[+] Method:                  GET
+[+] Threads:                 10
+[+] Wordlist:                /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt
+[+] Negative Status codes:   404
+[+] User Agent:              gobuster/3.6
+[+] Timeout:                 10s
+===============================================================
+Starting gobuster in directory enumeration mode
+===============================================================
+/modules              (Status: 301) [Size: 321] [--> http://10.10.20.232/simple/modules/]
+/uploads              (Status: 301) [Size: 321] [--> http://10.10.20.232/simple/uploads/]
+/doc                  (Status: 301) [Size: 317] [--> http://10.10.20.232/simple/doc/]
+/admin                (Status: 301) [Size: 319] [--> http://10.10.20.232/simple/admin/]
+/assets               (Status: 301) [Size: 320] [--> http://10.10.20.232/simple/assets/]
+/lib                  (Status: 301) [Size: 317] [--> http://10.10.20.232/simple/lib/]
+Progress: 3241 / 220560 (1.47%)
+
+
+
+lets navigate to exploit db to find a payload 
+
+https://www.exploit-db.com/exploits/46635
+
+lets download and move the script : sudo mv ~/Downloads/46635.py ~/Desktop/tryhackme/simplectf
+
+ok this is the python payload for sql injection 
+///////
+
+python3 46635.py -h 
+Usage: 46635.py [options]
+
+Options:
+  -h, --help            show this help message and exit
+  -u URL, --url=URL     Base target uri (ex. http://10.10.10.100/cms)
+  -w WORDLIST, --wordlist=WORDLIST
+                        Wordlist for crack admin password
+  -c, --crack           Crack password with wordlist
+                                                                                             
+┌──(Abad㉿kali)-[~/Desktop/tryhackme/simplectf]
+└─$ 
+
+
+
+////////
+
+
+
+
+
+
+
+
+

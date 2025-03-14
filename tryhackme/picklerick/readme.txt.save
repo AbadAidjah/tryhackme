@@ -1,0 +1,18 @@
+"to check directories and specififque extentions "
+gobuster dir -u http://10.10.31.155 -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt -x php,sh,txt,cgi,py,html,css,js
+
+"we found login in http://10.10.31.155/login , username found in source code of first index page , passwd found in the src of the robot.txt page so they worked "
+
+
+///// first ingrediant ////
+we used the cmnd less with the name of the file in the command line so that it works "less Sup3rS3cretPickl3Ingred.txt"
+ which gave us the first ingrediant whcih is" mr. meeseek hair" 
+
+we can also use pattern like "grep . fromfile " or we can use shell "while read line;do echo $line;done < filename"
+
+we can use "grep -R ." this will work recursivley and shows us all what is in the files 
+
+
+
+"second ingrediant "
+
