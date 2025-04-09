@@ -296,6 +296,16 @@ root@THM-Chal:/#
 
 lets find the file  root.txt
 
+remember allways use sudo to the privilige that u have to activate it 
+
+sudo /usr/bin/perl /home/itguy/backup.pl
+
+
+
+
+
+
+
 
 root@THM-Chal:/# find / -name root.txt 2>/dev/null
 
