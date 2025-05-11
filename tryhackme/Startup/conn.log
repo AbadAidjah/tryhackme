@@ -1,0 +1,20 @@
+#separator \x09
+#set_separator	,
+#empty_field	(empty)
+#unset_field	-
+#path	conn
+#open	2025-05-11-13-04-37
+#fields	ts	uid	id.orig_h	id.orig_p	id.resp_h	id.resp_p	proto	service	duration	orig_bytes	resp_bytes	conn_state	local_orig	local_resp	missed_bytes	history	orig_pkts	orig_ip_bytes	resp_pkts	resp_ip_bytes	tunnel_parents	ip_proto
+#types	time	string	addr	port	addr	port	enum	string	interval	count	count	string	bool	bool	count	string	count	count	count	count	set[string]	count
+1601660418.830182	CRqPHR14IDILOXYFG7	192.168.22.139	4444	192.168.22.139	40932	tcp	-	0.004266	0	0	SF	T	T	0	FfA	2	104	1	52	-	6
+1601660418.078837	CnPiGU3EX5erSyxNUd	192.168.22.139	55280	13.32.85.44	443	tcp	-	1.965477	25	0	SF	T	F	0	AaDFf	4	184	4	160	-	6
+1601660423.886752	C2xHww4F2bqmJfuAOa	192.168.22.139	37694	192.168.22.2	53	udp	dns	0.010165	45	122	SF	T	T	0	Dd	1	73	1	150	-	17
+1601660449.014534	C0PJlFx7BKB68Hmwc	192.168.22.139	33070	161.35.10.109	443	tcp	-	0.068195	63	0	SF	T	F	0	DaFfA	4	223	4	160	-	6
+1601660421.965701	Cj1Eoi1yXowP5JC6se	192.168.22.139	43948	34.98.75.36	443	tcp	-	54.131781	102	39	SF	T	F	0	DadAFf	6	342	6	279	-	6
+1601660468.778914	CiQ9JR3mVSjXh3Xope	::1	38279	::1	38279	udp	-	0.027302	1888	0	S0	T	T	0	D	6	2176	0	0	-	17
+1601660418.590735	CHoQ8H7S08Iqos6U3	192.168.22.139	51816	104.107.60.8	80	tcp	-	32.492332	1	0	SF	T	F	0	AaFf	6	240	6	240	-	6
+1601660418.335159	C3r1Gq4CJcolszLGOl	192.168.33.1	48974	192.168.33.10	80	tcp	-	99.599569	627	1301	OTH	T	T	0	AadD	12	1250	12	1925	-	6
+1601660418.590596	CklCd13UdNPim5LdW6	192.168.22.139	33350	72.21.91.29	80	tcp	-	1.453853	1	0	SF	T	F	0	AaFf	3	120	3	120	-	6
+1601660418.335026	CHualb39c2X6xh7X9g	192.168.22.139	38750	104.107.60.16	80	tcp	-	32.751684	1	0	SF	T	F	0	AaFf	6	240	6	240	-	6
+1601660423.885455	C7ZOy32Xich4dT76t5	192.168.22.139	40934	192.168.22.139	4444	tcp	-	94.045133	5134	173	SF	T	T	0	ShADadFf	54	7950	62	3405	-	6
+#close	2025-05-11-13-04-37

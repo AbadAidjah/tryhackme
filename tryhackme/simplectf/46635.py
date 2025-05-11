@@ -180,7 +180,7 @@ dump_email()
 dump_password()
 
 if options.cracking:
-    print (colored("[*] Now try to crack password"))
+    print ("[*] Now try to crack password")
     crack_password()
 
 beautify_print()
