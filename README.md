@@ -3,7 +3,7 @@
 ![TryHackMe](https://img.shields.io/badge/Platform-TryHackMe-red?style=for-the-badge&logo=tryhackme)
 ![CTF Type](https://img.shields.io/badge/Type-CTF_Hacking-blue?style=for-the-badge&logo=hackthebox)
 ![Language](https://img.shields.io/badge/Notes-Markdown-ff69b4?style=for-the-badge&logo=markdown)
-![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge&logo=open-source-initiative)
+![License](https://img.shields.io/badge/License-SupNum-green?style=for-the-badge&logo=open-source-initiative)
 ![Tools](https://img.shields.io/badge/Tools-Nmap%2C%20Hydra%2C%20SQLMap-6e40c9?style=for-the-badge&logo=gnometerminal)
 
 
